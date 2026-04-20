@@ -7,6 +7,11 @@
         <mxCell id="EEtiVUln65vF-KzQcZ-c-11" edge="1" parent="1" source="EEtiVUln65vF-KzQcZ-c-1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="EEtiVUln65vF-KzQcZ-c-8">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
+        <mxCell id="EEtiVUln65vF-KzQcZ-c-14" connectable="0" parent="EEtiVUln65vF-KzQcZ-c-11" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="HTTPS / REST" vertex="1">
+          <mxGeometry relative="1" x="0.379" y="2" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
         <mxCell id="EEtiVUln65vF-KzQcZ-c-1" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" value="&lt;div&gt;React Frontend&lt;/div&gt;Client Tier" vertex="1">
           <mxGeometry height="60" width="120" x="365" y="180" as="geometry" />
         </mxCell>
@@ -24,6 +29,11 @@
         </mxCell>
         <mxCell id="EEtiVUln65vF-KzQcZ-c-13" edge="1" parent="1" source="EEtiVUln65vF-KzQcZ-c-8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="EEtiVUln65vF-KzQcZ-c-12">
           <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="EEtiVUln65vF-KzQcZ-c-15" connectable="0" parent="EEtiVUln65vF-KzQcZ-c-13" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="JDBC" vertex="1">
+          <mxGeometry relative="1" x="-0.221" y="-3" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
         </mxCell>
         <mxCell id="EEtiVUln65vF-KzQcZ-c-8" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" value="&lt;div&gt;Spring Boot Backend&lt;/div&gt;&lt;div&gt;Application Tier&lt;/div&gt;" vertex="1">
           <mxGeometry height="60" width="120" x="365" y="310" as="geometry" />
