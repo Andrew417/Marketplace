@@ -1,0 +1,166 @@
+<mxfile host="app.diagrams.net">
+  <diagram id="BCswsJ1FrhDFwi7ZzOn2" name="Page-1">
+    <mxGraphModel dx="1456" dy="671" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="2" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;fontStyle=1;" value="Start" vertex="1">
+          <mxGeometry height="50" width="160" x="260" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="3" parent="1" style="shape=parallelogram;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9e6ea6;fontStyle=1;" value="User opens login page" vertex="1">
+          <mxGeometry height="50" width="240" x="220" y="140" as="geometry" />
+        </mxCell>
+        <mxCell id="4" parent="1" style="shape=parallelogram;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9e6ea6;fontStyle=1;" value="Enter email and password" vertex="1">
+          <mxGeometry height="50" width="260" x="210" y="240" as="geometry" />
+        </mxCell>
+        <mxCell id="5" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9e6ea6;fontStyle=1;" value="Check for empty fields" vertex="1">
+          <mxGeometry height="50" width="240" x="220" y="340" as="geometry" />
+        </mxCell>
+        <mxCell id="6" parent="1" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontStyle=1;" value="Any field empty?" vertex="1">
+          <mxGeometry height="80" width="220" x="230" y="440" as="geometry" />
+        </mxCell>
+        <mxCell id="7" parent="1" style="shape=parallelogram;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontStyle=1;" value="All fields required" vertex="1">
+          <mxGeometry height="50" width="160" x="-5" y="455" as="geometry" />
+        </mxCell>
+        <mxCell id="8" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9e6ea6;fontStyle=1;" value="Query DB — find user by email" vertex="1">
+          <mxGeometry height="50" width="270" x="205" y="580" as="geometry" />
+        </mxCell>
+        <mxCell id="9" parent="1" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontStyle=1;" value="User found?" vertex="1">
+          <mxGeometry height="80" width="220" x="230" y="680" as="geometry" />
+        </mxCell>
+        <mxCell id="10" parent="1" style="shape=parallelogram;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontStyle=1;" value="Invalid credentials" vertex="1">
+          <mxGeometry height="50" width="160" x="-5" y="695" as="geometry" />
+        </mxCell>
+        <mxCell id="11" parent="1" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontStyle=1;" value="Account locked?" vertex="1">
+          <mxGeometry height="80" width="220" x="230" y="820" as="geometry" />
+        </mxCell>
+        <mxCell id="12" parent="1" style="shape=parallelogram;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontStyle=1;" value="Locked — try in 15 min" vertex="1">
+          <mxGeometry height="50" width="180" x="527" y="835" as="geometry" />
+        </mxCell>
+        <mxCell id="13" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9e6ea6;fontStyle=1;" value="BCrypt compare password" vertex="1">
+          <mxGeometry height="50" width="260" x="210" y="960" as="geometry" />
+        </mxCell>
+        <mxCell id="14" parent="1" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontStyle=1;" value="Password correct?" vertex="1">
+          <mxGeometry height="80" width="220" x="230" y="1060" as="geometry" />
+        </mxCell>
+        <mxCell id="15" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9e6ea6;fontStyle=1;" value="Increment failed attempts" vertex="1">
+          <mxGeometry height="50" width="180" x="-25" y="1070" as="geometry" />
+        </mxCell>
+        <mxCell id="lV-tdhMpI7iTW4SPgwe8-64" edge="1" parent="1" source="16" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="16" parent="1" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontStyle=1;" value="Attempts = 5?" vertex="1">
+          <mxGeometry height="70" width="160" x="-15" y="1180" as="geometry" />
+        </mxCell>
+        <mxCell id="17" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontStyle=1;" value="Lock account 15 min" vertex="1">
+          <mxGeometry height="50" width="180" x="-25" y="1326" as="geometry" />
+        </mxCell>
+        <mxCell id="18" parent="1" style="shape=parallelogram;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontStyle=1;" value="Account locked error" vertex="1">
+          <mxGeometry height="50" width="180" x="-25" y="1419" as="geometry" />
+        </mxCell>
+        <mxCell id="19" parent="1" style="shape=parallelogram;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontStyle=1;" value="Invalid credentials" vertex="1">
+          <mxGeometry height="50" width="180" x="220" y="1200" as="geometry" />
+        </mxCell>
+        <mxCell id="20" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9e6ea6;fontStyle=1;" value="Reset failed attempts to 0" vertex="1">
+          <mxGeometry height="50" width="260" x="210" y="1200" as="geometry" />
+        </mxCell>
+        <mxCell id="21" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9e6ea6;fontStyle=1;" value="Generate JWT token" vertex="1">
+          <mxGeometry height="50" width="240" x="220" y="1310" as="geometry" />
+        </mxCell>
+        <mxCell id="22" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9e6ea6;fontStyle=1;" value="Set token expiry 24 hours" vertex="1">
+          <mxGeometry height="50" width="240" x="220" y="1410" as="geometry" />
+        </mxCell>
+        <mxCell id="23" parent="1" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontStyle=1;" value="DB update success?" vertex="1">
+          <mxGeometry height="80" width="220" x="230" y="1510" as="geometry" />
+        </mxCell>
+        <mxCell id="24" parent="1" style="shape=parallelogram;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontStyle=1;" value="Server error 500" vertex="1">
+          <mxGeometry height="50" width="160" x="531" y="1525" as="geometry" />
+        </mxCell>
+        <mxCell id="25" parent="1" style="shape=parallelogram;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1;" value="Return &quot;Success&quot; + JWT token" vertex="1">
+          <mxGeometry height="50" width="260" x="210" y="1650" as="geometry" />
+        </mxCell>
+        <mxCell id="26" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1;" value="Redirect to dashboard" vertex="1">
+          <mxGeometry height="50" width="240" x="220" y="1750" as="geometry" />
+        </mxCell>
+        <mxCell id="27" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;fontStyle=1;" value="End" vertex="1">
+          <mxGeometry height="50" width="160" x="260" y="1850" as="geometry" />
+        </mxCell>
+        <mxCell id="40" edge="1" parent="1" source="2" target="3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="41" edge="1" parent="1" source="3" target="4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="42" edge="1" parent="1" source="4" target="5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="43" edge="1" parent="1" source="5" target="6">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="44" edge="1" parent="1" source="6" target="7" value="Yes">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="45" edge="1" parent="1" source="6" target="8" value="No">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="46" edge="1" parent="1" source="8" target="9">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="47" edge="1" parent="1" source="9" target="10" value="No">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="48" edge="1" parent="1" source="9" target="11" value="Yes">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="49" edge="1" parent="1" source="11" target="12" value="Yes">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="50" edge="1" parent="1" source="11" target="13" value="No">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="51" edge="1" parent="1" source="13" target="14">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="52" edge="1" parent="1" source="14" target="15" value="No">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="53" edge="1" parent="1" source="14" target="20" value="Yes">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="54" edge="1" parent="1" source="15" target="16">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="55" edge="1" parent="1" source="16" target="17" value="Yes">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="57" edge="1" parent="1" source="17" target="18">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="58" edge="1" parent="1" source="20" target="21">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="59" edge="1" parent="1" source="21" target="22">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="60" edge="1" parent="1" source="22" target="23">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="61" edge="1" parent="1" source="23" target="24" value="No">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="62" edge="1" parent="1" source="23" target="25" value="Yes">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="63" edge="1" parent="1" source="25" target="26">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="64" edge="1" parent="1" source="26" target="27">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="lV-tdhMpI7iTW4SPgwe8-65" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="No" vertex="1">
+          <mxGeometry height="30" width="60" x="-48" y="1187" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
