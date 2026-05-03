@@ -11,6 +11,8 @@
 # Compiled Java bytecode
 *.class
 *.jar
+!**/maven-wrapper.jar
+!**/.mvn/wrapper/*.jar
 *.war
 *.ear
 *.nar
@@ -38,7 +40,6 @@ buildNumber.properties
 
 # Gradle specific
 .gradle/
-build/
 gradle-app.setting
 !gradle-wrapper.jar
 .gradletasknamecache
@@ -83,9 +84,6 @@ frontend/.cache/
 .env.production.local
 
 # NPM
-package-lock.json
-yarn.lock
-pnpm-lock.yaml
 
 # React specific
 *.hot-update.js
@@ -226,11 +224,6 @@ temp/
 application-override.properties
 config-local.properties
 
-# Reports generated during build
-reports/*.pdf
-reports/*.docx
-!reports/.gitkeep
-
 # Logs from the running servers
 socket-server.log
 bridge-server.log
@@ -266,3 +259,30 @@ docker-compose.override.yml
 # Ignore all .classpath files from any directory
 **/.classpath
 **/.project
+
+# CI/CD secrets (NEVER commit these)
+.env
+.env.local
+.env.production
+.env.staging
+*.pem
+id_rsa
+id_rsa.pub
+
+# Docker volumes (local dev DB data)
+postgres-data/
+
+# IDE files for Java
+*.factorypath
+.apt_generated/
+
+# OS
+.DS_Store
+
+# SSH keys (CRITICAL - never commit)
+id_rsa
+id_rsa.pub
+*.ppk
+
+# Docker dev volumes
+docker-volumes/
