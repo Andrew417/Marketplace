@@ -20,7 +20,7 @@ public class Main {
         if (portEnv != null && !portEnv.isEmpty()) {
             return Integer.parseInt(portEnv);
         }
-        return 9090; // default
+        return 9000; // default
     }
 
     public static void main(String[] args) {
@@ -32,8 +32,8 @@ public class Main {
                 Socket clientSocket = serverSocket.accept();
                 System.out.println("New client connected: "
                         + clientSocket.getInetAddress());
-        // TODO: Create a new thread for each client
-        // new Thread(new ClientHandler(clientSocket)).start();
+                // TODO: Create a new thread for each client
+                // new Thread(new ClientHandler(clientSocket)).start();
             }
         } catch (IOException e) {
             System.err.println("Server error: " + e.getMessage());
