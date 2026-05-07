@@ -21,6 +21,12 @@ import InventoryManager from './components/seller/InventoryManager';
 import OrderManager from './components/seller/OrderManager';
 import SellerAnalytics from './components/seller/SellerAnalytics';
 
+// Admin Pages
+import ChatInterface from './components/chat/ChatInterface';
+import Settings from './components/settings/Settings';
+import AdminReports from './components/admin/AdminReports';
+import ApiDocs from './pages/ApiDocs';
+
 import './App.css';
 
 function App() {
@@ -47,6 +53,12 @@ function App() {
               <Route path="/seller/inventory" element={<InventoryManager />} />
               <Route path="/seller/orders" element={<OrderManager />} />
               <Route path="/seller/analytics" element={<SellerAnalytics />} />
+
+              {/* Admin Routes */}
+              <Route path="/chat" element={<ChatInterface />} />
+              <Route path="/settings" element={<Settings />} />
+              <Route path="/admin/reports" element={<AdminReports />} />
+              <Route path="/api-docs" element={<ApiDocs />} />
             </Routes>
           </div>
         </Router>
