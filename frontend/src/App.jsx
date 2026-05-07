@@ -15,6 +15,12 @@ import ItemDetail from './components/buyer/ItemDetail';
 import Checkout from './components/buyer/Checkout';
 import PurchaseHistory from './components/buyer/PurchaseHistory';
 
+// Seller Pages 
+import SellerHome from './pages/SellerHome';
+import InventoryManager from './components/seller/InventoryManager';
+import OrderManager from './components/seller/OrderManager';
+import SellerAnalytics from './components/seller/SellerAnalytics';
+
 import './App.css';
 
 function App() {
@@ -35,6 +41,12 @@ function App() {
               <Route path="/buyer/item/:itemId" element={<ItemDetail />} />
               <Route path="/buyer/checkout/:itemId" element={<Checkout />} />
               <Route path="/buyer/purchases" element={<PurchaseHistory />} />
+
+              {/* Seller Routes */}
+              <Route path="/seller/dashboard" element={<SellerHome />} />
+              <Route path="/seller/inventory" element={<InventoryManager />} />
+              <Route path="/seller/orders" element={<OrderManager />} />
+              <Route path="/seller/analytics" element={<SellerAnalytics />} />
             </Routes>
           </div>
         </Router>
