@@ -1,27 +1,68 @@
 package com.marketplace.webservices.controllers;
 
-import com.google.gson.JsonObject;
-import com.marketplace.webservices.services.SocketForwarder;
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
-@RestController
-@RequestMapping("/api")
-public class AuthController {
-    @Autowired
-    private SocketForwarder socketForwarder;
+import com.marketplace.webservices.dto.LoginRequest;
+import com.marketplace.webservices.dto.RegisterRequest;
+import com.marketplace.webservices.response.ApiResponse;
+import com.marketplace.webservices.services.AuthService;
 
-    @PostMapping("/register")
-    public ResponseEntity<String> register(@RequestBody String requestBody) {
-        JsonObject payload = new JsonObject(); 
-        // Logic to parse requestBody into payload goes here
-        return ResponseEntity.ok(socketForwarder.sendCommand("REGISTER", payload));
+@RestController
+@RequestMapping("/api/auth")
+public class AuthController {
+
+    private final AuthService authService;
+
+    public AuthController(AuthService authService) {
+        this.authService = authService;
     }
 
+    // ─── POST /api/auth/register ──────────────────────────
+    // Story i  — Create a new account
+    // Story x  — REST Web Service 1
+    // Public   — No JWT required
+
+    @PostMapping("/register")
+    public ResponseEntity<ApiResponse> register(
+            @Valid @RequestBody RegisterRequest request,
+            BindingResult bindingResult) {
+
+        // Return first validation error if any field is invalid
+        if (bindingResult.hasErrors()) {
+            String errorMessage = bindingResult.getFieldErrors()
+                    .get(0)
+                    .getDefaultMessage();
+            return ResponseEntity
+                    .badRequest()
+                    .body(ApiResponse.error(400, errorMessage));
+        }
+
+        return authService.register(request);
+    }
+
+    // ─── POST /api/auth/login ─────────────────────────────
+    // Story ii — Login to your account
+    // Story x  — REST Web Service 2
+    // Public   — No JWT required
+
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody String requestBody) {
-        JsonObject payload = new JsonObject();
-        return ResponseEntity.ok(socketForwarder.sendCommand("LOGIN", payload));
+    public ResponseEntity<ApiResponse> login(
+            @Valid @RequestBody LoginRequest request,
+            BindingResult bindingResult) {
+
+        // Return first validation error if any field is invalid
+        if (bindingResult.hasErrors()) {
+            String errorMessage = bindingResult.getFieldErrors()
+                    .get(0)
+                    .getDefaultMessage();
+            return ResponseEntity
+                    .badRequest()
+                    .body(ApiResponse.error(400, errorMessage));
+        }
+
+        return authService.login(request);
     }
 }
