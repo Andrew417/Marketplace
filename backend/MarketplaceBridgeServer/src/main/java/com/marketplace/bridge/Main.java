@@ -9,5 +9,9 @@ package com.marketplace.bridge;
  * @author Arsany
  */
 public class Main {
-    
+    public static void main(String[] args) {
+        MessageForwarder forwarder = new MessageForwarder();
+        MarketplaceWebSocketServer server = new MarketplaceWebSocketServer(8081, forwarder);
+        server.start();
+    }
 }
