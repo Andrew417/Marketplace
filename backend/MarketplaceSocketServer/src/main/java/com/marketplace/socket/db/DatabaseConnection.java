@@ -6,6 +6,7 @@ package com.marketplace.socket.db;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+
 /**
  *
  * @author Mathew Aziz
@@ -17,6 +18,7 @@ public class DatabaseConnection {
     private static final String DB_NAME = getEnv("DB_NAME","marketplace_db");
     private static final String DB_USER = getEnv("DB_USER", "root");
     private static final String DB_PASSWORD = getEnv("DB_PASSWORD", "");
+    
 
     private static String getEnv(String key, String defaultValue) {
         String value = System.getenv(key);
