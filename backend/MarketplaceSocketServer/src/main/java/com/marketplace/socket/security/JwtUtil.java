@@ -14,14 +14,15 @@ public class JwtUtil {
     private static final long EXP_SECONDS = 24L * 60L * 60L; // 24 hours
 
     private static SecretKey key() {
-        String secret = System.getenv("JWT_SECRET");
+        String secret = System.getProperty("JWT_SECRET", System.getenv("JWT_SECRET"));
         if (secret == null || secret.isBlank()) {
             throw new IllegalStateException("JWT_SECRET env var is missing");
         }
         return Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
     }
 
-    public static String generate(long userId, String email) {
+    // userId is UUID string now
+    public static String generate(String userId, String email) {
         Instant now = Instant.now();
         Instant exp = now.plusSeconds(EXP_SECONDS);
 

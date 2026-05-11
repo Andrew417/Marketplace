@@ -20,6 +20,8 @@ public class AuthService {
         }
 
         String hash = PasswordUtil.hash(password);
+
+        // insertUser now returns String userId (UUID) — you can ignore it for register
         userDao.insertUser(username, email, hash);
     }
 
@@ -31,7 +33,8 @@ public class AuthService {
             throw new IllegalArgumentException("Invalid credentials");
         }
 
-        String token = JwtUtil.generate(user.id(), user.email());
+        // UUID string
+        String token = JwtUtil.generate(user.userId(), user.email());
         return Map.of("token", token);
     }
 }
