@@ -1,7 +1,5 @@
 package com.marketplace.socket;
 
-import com.marketplace.socket.handlers.AuthHandler;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
@@ -10,9 +8,9 @@ public class CommandRouter {
     private final Map<String, Function<String, String>> routes = new HashMap<>();
 
     public CommandRouter() {
-        AuthHandler authHandler = new AuthHandler();
-        routes.put("REGISTER", authHandler::handleRegister);
-        routes.put("LOGIN", authHandler::handleLogin);
+//        AuthHandler authHandler = new AuthHandler();
+//        routes.put("REGISTER", authHandler::handleRegister);
+//        routes.put("LOGIN", authHandler::handleLogin);
     }
 
     public String dispatch(String rawMessage) {
