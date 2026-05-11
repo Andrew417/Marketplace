@@ -4,6 +4,9 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import com.marketplace.socket.commands.AccountCommandHandler;
+import com.marketplace.socket.commands.DepositCommandHandler;
+import com.marketplace.socket.commands.ItemsCommandHandler;
+import com.marketplace.socket.commands.PurchaseCommandHandler;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
@@ -29,9 +32,9 @@ public class MarketplaceServer {
         // 2. Register command handlers
         handlers.put("ACCOUNT", new AccountCommandHandler(dataSource));
         // Future registrations go here, e.g.:
-        // handlers.put("ITEMS_ADD", new ItemsCommandHandler(dataSource));
-        // handlers.put("DEPOSIT", new DepositCommandHandler(dataSource));
-        // handlers.put("PURCHASE", new PurchaseCommandHandler(dataSource));
+        handlers.put("ITEMS_ADD", new ItemsCommandHandler(dataSource));
+        handlers.put("DEPOSIT", new DepositCommandHandler(dataSource));
+        handlers.put("PURCHASE", new PurchaseCommandHandler(dataSource));
 
         // 3. Start socket server
         try (ServerSocket serverSocket = new ServerSocket(PORT)) {
@@ -48,9 +51,7 @@ public class MarketplaceServer {
 
     private static void handleClient(Socket socket) {
         try (
-            BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            PrintWriter out = new PrintWriter(socket.getOutputStream(), true)
-        ) {
+                BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream())); PrintWriter out = new PrintWriter(socket.getOutputStream(), true)) {
             String line;
             while ((line = in.readLine()) != null) {
                 System.out.println("Received: " + line);
@@ -91,7 +92,10 @@ public class MarketplaceServer {
         } catch (IOException e) {
             System.out.println("Client disconnected: " + e.getMessage());
         } finally {
-            try { socket.close(); } catch (IOException ignored) {}
+            try {
+                socket.close();
+            } catch (IOException ignored) {
+            }
         }
     }
 
@@ -117,6 +121,7 @@ public class MarketplaceServer {
      * Interface for all command handlers.
      */
     public interface CommandHandler {
+
         void handle(Session session, JsonObject request, PrintWriter out);
     }
 }

@@ -1,0 +1,151 @@
+package com.marketplace.socket.commands;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.marketplace.socket.Session;
+import com.stripe.Stripe;
+import com.stripe.exception.StripeException;
+import com.stripe.model.PaymentIntent;
+import com.stripe.param.PaymentIntentCreateParams;
+
+import javax.sql.DataSource;
+import java.io.PrintWriter;
+import java.math.BigDecimal;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.UUID;
+
+public class PurchaseCommandHandler implements com.marketplace.socket.MarketplaceServer.CommandHandler {
+
+    private final DataSource dataSource;
+    private final Gson gson = new Gson();
+
+    public PurchaseCommandHandler(DataSource dataSource) {
+        this.dataSource = dataSource;
+
+        String stripeKey = System.getenv("STRIPE_SECRET_KEY");
+        if (stripeKey == null || stripeKey.isBlank()) {
+            throw new IllegalStateException("Missing STRIPE_SECRET_KEY environment variable.");
+        }
+        Stripe.apiKey = stripeKey;
+    }
+
+    @Override
+    public void handle(Session session, JsonObject request, PrintWriter out) {
+        UUID buyerId;
+        try {
+            buyerId = UUID.fromString(session.getUserId());
+        } catch (IllegalArgumentException e) {
+            sendError(out, 400, "Invalid user ID format.");
+            return;
+        }
+
+        if (!request.has("itemId")) {
+            sendError(out, 400, "Missing 'itemId'");
+            return;
+        }
+
+        UUID itemId = UUID.fromString(request.get("itemId").getAsString());
+
+        try (Connection conn = dataSource.getConnection()) {
+            conn.setAutoCommit(false); // Start transaction
+
+            // 1. Check if item is available and get price
+            BigDecimal price = null;
+            UUID sellerId = null;
+
+            String itemQuery = "SELECT price, seller_id, quantity FROM items WHERE item_id = ? AND status = 'AVAILABLE' FOR UPDATE";
+            try (PreparedStatement stmt = conn.prepareStatement(itemQuery)) {
+                stmt.setObject(1, itemId);
+                ResultSet rs = stmt.executeQuery();
+                if (rs.next()) {
+                    if (rs.getInt("quantity") <= 0) {
+                        sendError(out, 400, "Item is out of stock.");
+                        return;
+                    }
+                    price = rs.getBigDecimal("price");
+                    sellerId = rs.getObject("seller_id", UUID.class);
+                } else {
+                    sendError(out, 404, "Item not found or not available.");
+                    return;
+                }
+            }
+
+            if (buyerId.equals(sellerId)) {
+                sendError(out, 400, "You cannot buy your own item.");
+                return;
+            }
+
+            // 2. Create Order
+            UUID orderId = null;
+            String createOrder = "INSERT INTO orders (buyer_id, total_amount) VALUES (?, ?) RETURNING order_id";
+            try (PreparedStatement stmt = conn.prepareStatement(createOrder)) {
+                stmt.setObject(1, buyerId);
+                stmt.setBigDecimal(2, price);
+                ResultSet rs = stmt.executeQuery();
+                if (rs.next()) {
+                    orderId = rs.getObject("order_id", UUID.class);
+                }
+            }
+
+            // 3. Create Order Items
+            String createOrderItem = "INSERT INTO order_items (order_id, item_id) VALUES (?, ?)";
+            try (PreparedStatement stmt = conn.prepareStatement(createOrderItem)) {
+                stmt.setObject(1, orderId);
+                stmt.setObject(2, itemId);
+                stmt.executeUpdate();
+            }
+
+            // 4. Create Stripe PaymentIntent
+            // Stripe expects amounts in cents (e.g., $10.00 = 1000)
+            long amountInCents = price.multiply(new BigDecimal(100)).longValue();
+
+            PaymentIntentCreateParams params = PaymentIntentCreateParams.builder()
+                    .setAmount(amountInCents)
+                    .setCurrency("usd")
+                    .putMetadata("order_id", orderId.toString()) // Julia will need this in the webhook!
+                    .build();
+
+            PaymentIntent paymentIntent = PaymentIntent.create(params);
+
+            // 5. Create PENDING Transaction (Kerlos' task mentioned storing payment intent IDs)
+            // Note: Make sure Kerlos adds a 'stripe_intent_id' column to transactions!
+            String createTransaction = "INSERT INTO transactions (buyer_id, seller_id, order_id, type, status) VALUES (?, ?, ?, 'PAYMENT', 'PENDING')";
+            try (PreparedStatement stmt = conn.prepareStatement(createTransaction)) {
+                stmt.setObject(1, buyerId);
+                stmt.setObject(2, sellerId);
+                stmt.setObject(3, orderId);
+                stmt.executeUpdate();
+            }
+
+            conn.commit(); // Commit database changes
+
+            // 6. Return Stripe Client Secret to the frontend
+            JsonObject response = new JsonObject();
+            response.addProperty("status", 200);
+
+            JsonObject data = new JsonObject();
+            data.addProperty("order_id", orderId.toString());
+            data.addProperty("client_secret", paymentIntent.getClientSecret());
+
+            response.add("data", data);
+            out.println(gson.toJson(response));
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            sendError(out, 500, "Database error: " + e.getMessage());
+        } catch (StripeException e) {
+            e.printStackTrace();
+            sendError(out, 500, "Stripe API error: " + e.getMessage());
+        }
+    }
+
+    private void sendError(PrintWriter out, int statusCode, String message) {
+        JsonObject error = new JsonObject();
+        error.addProperty("status", statusCode);
+        error.addProperty("message", message);
+        out.println(gson.toJson(error));
+    }
+}
