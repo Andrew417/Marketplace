@@ -19,7 +19,7 @@ public interface AccountRepository extends JpaRepository<Account, UUID> {
     Optional<Account> findByUserId(UUID userId);
 
     @Modifying
-    @Transactional // Required to execute the update successfully
-    @Query("UPDATE Account a SET a.balance = a.balance + :amount, a.updatedAt = CURRENT_TIMESTAMP WHERE a.userId = :userId")
+    @Transactional
+    @Query("UPDATE Account a SET a.balance = a.balance + :amount, a.updatedAt = CURRENT_INSTANT WHERE a.userId = :userId")
     void addToBalance(@Param("userId") UUID userId, @Param("amount") BigDecimal amount);
 }
