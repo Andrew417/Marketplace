@@ -53,8 +53,8 @@ public class JwtFilter extends OncePerRequestFilter {
 
         // Changed Long to UUID to match JwtUtil
         UUID userId = jwtUtil.extractUserId(token);
-        UsernamePasswordAuthenticationToken authentication =
-                new UsernamePasswordAuthenticationToken(userId, null, new ArrayList<>());
+        UsernamePasswordAuthenticationToken authentication
+                = new UsernamePasswordAuthenticationToken(userId, null, new ArrayList<>());
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         filterChain.doFilter(request, response);

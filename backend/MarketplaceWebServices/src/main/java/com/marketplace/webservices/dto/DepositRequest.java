@@ -5,7 +5,6 @@ import jakarta.validation.constraints.NotNull;
 import java.math.BigDecimal;
 
 // Data Transfer Object for POST /api/account/deposit
-
 public class DepositRequest {
 
     @NotNull(message = "Amount is required")
@@ -13,7 +12,11 @@ public class DepositRequest {
     private BigDecimal amount;
 
     // ─── Getters and Setters ──────────────────────────────
+    public BigDecimal getAmount() {
+        return amount;
+    }
 
-    public BigDecimal getAmount() { return amount; }
-    public void setAmount(BigDecimal amount) { this.amount = amount; }
+    public void setAmount(BigDecimal amount) {
+        this.amount = amount;
+    }
 }
