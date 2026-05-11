@@ -11,6 +11,7 @@ import com.marketplace.webservices.models.Account;
 import java.math.BigDecimal;
 import java.util.Optional;
 import java.util.UUID;
+import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 public interface AccountRepository extends JpaRepository<Account, UUID> {
@@ -18,6 +19,7 @@ public interface AccountRepository extends JpaRepository<Account, UUID> {
     Optional<Account> findByUserId(UUID userId);
 
     @Modifying
-    @Query("UPDATE Account a SET a.balance = a.balance + :amount, a.updatedAt = now() WHERE a.userId = :userId")
+    @Transactional // Required to execute the update successfully
+    @Query("UPDATE Account a SET a.balance = a.balance + :amount, a.updatedAt = CURRENT_TIMESTAMP WHERE a.userId = :userId")
     void addToBalance(@Param("userId") UUID userId, @Param("amount") BigDecimal amount);
 }

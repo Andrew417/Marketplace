@@ -13,12 +13,12 @@ CREATE TABLE users (
 
 --------------------------------------------------
 
--- ACCOUNTS
+-- ACCOUNTS (Revised for CockroachDB/H2)
 CREATE TABLE accounts (
-    account_id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
-    user_id UNIQUEIDENTIFIER UNIQUE NOT NULL,
+    account_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID UNIQUE NOT NULL,
     balance DECIMAL(10,2) DEFAULT 0,
-    updated_at DATETIME DEFAULT GETDATE(),
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Changed from GETDATE()
 
     FOREIGN KEY (user_id) REFERENCES users(user_id)
 );
@@ -37,17 +37,17 @@ CREATE TABLE deposits (
 
 --------------------------------------------------
 
--- ITEMS
+-- ITEMS (Revised)
 CREATE TABLE items (
-    item_id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
-    seller_id UNIQUEIDENTIFIER NOT NULL,
+    item_id UUID PRIMARY KEY DEFAULT gen_random_uuid(), -- Changed from UNIQUEIDENTIFIER
+    seller_id UUID NOT NULL,
     name VARCHAR(100),
     brand VARCHAR(100),
     description VARCHAR(255),
     price DECIMAL(10,2) CHECK (price > 0),
     status VARCHAR(20) DEFAULT 'AVAILABLE',
     quantity INT DEFAULT 0,
-    created_at DATETIME DEFAULT GETDATE(),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
     FOREIGN KEY (seller_id) REFERENCES users(user_id),
     CHECK (status IN ('AVAILABLE', 'OUT_OF_STOCK', 'DISABLED'))
