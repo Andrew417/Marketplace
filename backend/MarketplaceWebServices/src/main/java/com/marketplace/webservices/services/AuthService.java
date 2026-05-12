@@ -33,9 +33,9 @@ public class AuthService {
     private final JwtUtil jwtUtil;
 
     public AuthService(AuthRepository authRepository,
-                       AccountRepository accountRepository,
-                       PasswordEncoder passwordEncoder,
-                       JwtUtil jwtUtil) {
+            AccountRepository accountRepository,
+            PasswordEncoder passwordEncoder,
+            JwtUtil jwtUtil) {
         this.authRepository = authRepository;
         this.accountRepository = accountRepository;
         this.passwordEncoder = passwordEncoder;

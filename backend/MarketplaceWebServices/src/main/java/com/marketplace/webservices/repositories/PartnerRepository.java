@@ -14,8 +14,8 @@ public class PartnerRepository {
     private JdbcTemplate jdbcTemplate;
 
     public List<Map<String, Object>> fetchAllAvailableItems() {
-        String sql = "SELECT item_id, name, brand, description, price, quantity " +
-                     "FROM items WHERE status = 'AVAILABLE' AND quantity > 0";
+        String sql = "SELECT item_id, name, brand, description, price, quantity "
+                + "FROM items WHERE status = 'AVAILABLE' AND quantity > 0";
         return jdbcTemplate.queryForList(sql);
     }
 
@@ -26,8 +26,8 @@ public class PartnerRepository {
     }
 
     public boolean updateInventory(String itemId, int quantityToBuy) {
-        String sql = "UPDATE items SET quantity = quantity - ? " +
-                     "WHERE item_id = ? AND quantity >= ? AND status = 'AVAILABLE'";
+        String sql = "UPDATE items SET quantity = quantity - ? "
+                + "WHERE item_id = ? AND quantity >= ? AND status = 'AVAILABLE'";
         return jdbcTemplate.update(sql, quantityToBuy, itemId, quantityToBuy) > 0;
     }
 

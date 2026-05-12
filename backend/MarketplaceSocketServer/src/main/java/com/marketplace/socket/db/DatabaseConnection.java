@@ -21,9 +21,12 @@ public class DatabaseConnection {
     
 
     private static String getEnv(String key, String defaultValue) {
-        String value = System.getenv(key);
-        return (value != null && !value.isEmpty()) ? value : defaultValue;
+    String value = System.getProperty(key);
+    if (value == null || value.isEmpty()) {
+        value = System.getenv(key);
     }
+    return (value != null && !value.isEmpty()) ? value : defaultValue;
+}
 
     private static String getJdbcUrl() {
         return String.format("jdbc:postgresql://%s:%s/%s?sslmode=disable",

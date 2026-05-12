@@ -20,9 +20,9 @@ public class PartnerController {
 
     @PostMapping("/purchase")
     public ResponseEntity<String> placeOrder(
-            @RequestHeader("X-API-KEY") String partnerUserId, 
+            @RequestHeader("X-API-KEY") String partnerUserId,
             @RequestBody Map<String, Object> requestBody) {
-        
+
         String itemId = (String) requestBody.get("itemId");
         int quantity = (Integer) requestBody.getOrDefault("quantity", 1);
 

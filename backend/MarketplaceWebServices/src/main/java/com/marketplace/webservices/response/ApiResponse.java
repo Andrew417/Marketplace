@@ -3,7 +3,6 @@ package com.marketplace.webservices.response;
 // Unified response format used by ALL endpoints
 // Success:  { "status": 200, "message": "...", "data": {...} }
 // Error:    { "status": 400, "message": "..." }
-
 public class ApiResponse {
 
     private int status;
@@ -11,7 +10,6 @@ public class ApiResponse {
     private Object data;
 
     // ─── Constructors ─────────────────────────────────────
-
     // Success with data
     public ApiResponse(int status, String message, Object data) {
         this.status = status;
@@ -27,7 +25,6 @@ public class ApiResponse {
     }
 
     // ─── Static Helpers ───────────────────────────────────
-
     public static ApiResponse success(String message, Object data) {
         return new ApiResponse(200, message, data);
     }
@@ -41,8 +38,15 @@ public class ApiResponse {
     }
 
     // ─── Getters ──────────────────────────────────────────
+    public int getStatus() {
+        return status;
+    }
 
-    public int getStatus() { return status; }
-    public String getMessage() { return message; }
-    public Object getData() { return data; }
+    public String getMessage() {
+        return message;
+    }
+
+    public Object getData() {
+        return data;
+    }
 }

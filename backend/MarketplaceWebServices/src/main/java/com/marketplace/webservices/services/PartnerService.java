@@ -20,7 +20,7 @@ public class PartnerService {
     @Transactional
     public String processPurchase(String partnerUserId, String itemId, int quantity) {
         Map<String, Object> item = partnerRepository.getItemDetails(itemId);
-        
+
         if (item == null || (Integer) item.get("quantity") < quantity) {
             return "ERROR: Item unavailable or insufficient stock.";
         }

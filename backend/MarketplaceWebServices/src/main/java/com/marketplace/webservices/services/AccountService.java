@@ -23,7 +23,7 @@ public class AccountService {
     private final DepositRepository depositRepository;
 
     public AccountService(AccountRepository accountRepository,
-                          DepositRepository depositRepository) {
+            DepositRepository depositRepository) {
         this.accountRepository = accountRepository;
         this.depositRepository = depositRepository;
     }

@@ -24,7 +24,6 @@ public class AuthController {
     // Story i  — Create a new account
     // Story x  — REST Web Service 1
     // Public   — No JWT required
-
     @PostMapping("/register")
     public ResponseEntity<ApiResponse> register(
             @Valid @RequestBody RegisterRequest request,
@@ -47,7 +46,6 @@ public class AuthController {
     // Story ii — Login to your account
     // Story x  — REST Web Service 2
     // Public   — No JWT required
-
     @PostMapping("/login")
     public ResponseEntity<ApiResponse> login(
             @Valid @RequestBody LoginRequest request,

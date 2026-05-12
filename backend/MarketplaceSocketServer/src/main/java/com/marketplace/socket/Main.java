@@ -9,7 +9,7 @@ public class Main {
     private static final int PORT = getPort();
 
     private static int getPort() {
-        String portEnv = System.getenv("SOCKET_SERVER_PORT");
+        String portEnv = System.getProperty("SOCKET_SERVER_PORT", System.getenv("SOCKET_SERVER_PORT"));
         if (portEnv != null && !portEnv.isEmpty()) {
             return Integer.parseInt(portEnv);
         }

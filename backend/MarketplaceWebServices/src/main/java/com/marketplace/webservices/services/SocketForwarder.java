@@ -11,6 +11,7 @@ import java.net.Socket;
 
 @Service
 public class SocketForwarder {
+
     @Value("${socket.server.host:localhost}")
     private String socketHost;
 
@@ -22,11 +23,9 @@ public class SocketForwarder {
     public String sendCommand(String command, JsonObject payload) {
         // Formats message as COMMAND|{"key":"value"} per protocol
         String message = command + "|" + gson.toJson(payload);
-        
-        try (Socket socket = new Socket(socketHost, socketPort);
-             PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-             BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
-            
+
+        try (Socket socket = new Socket(socketHost, socketPort); PrintWriter out = new PrintWriter(socket.getOutputStream(), true); BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
+
             out.println(message);
             return in.readLine(); // Returns response from Socket Server
         } catch (Exception e) {
