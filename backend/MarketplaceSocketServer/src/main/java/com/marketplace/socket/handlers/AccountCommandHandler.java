@@ -1,9 +1,9 @@
-package com.marketplace.socket.commands;
+package com.marketplace.socket.handlers;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
+import com.marketplace.socket.JsonUtil;
+import com.marketplace.socket.CommandHandler;
 import com.marketplace.socket.Session;
+import com.google.gson.JsonObject;
 
 import javax.sql.DataSource;
 import java.io.PrintWriter;
@@ -12,6 +12,10 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -23,10 +27,9 @@ import java.util.UUID;
  * The user's UUID is obtained from the Session (populated after
  * authentication).
  */
-public class AccountCommandHandler implements com.marketplace.socket.MarketplaceServer.CommandHandler {
+public class AccountCommandHandler implements CommandHandler {
 
     private final DataSource dataSource;
-    private final Gson gson = new Gson();
 
     public AccountCommandHandler(DataSource dataSource) {
         this.dataSource = dataSource;
@@ -41,7 +44,8 @@ public class AccountCommandHandler implements com.marketplace.socket.Marketplace
         try {
             userUuid = UUID.fromString(userIdStr);
         } catch (IllegalArgumentException e) {
-            sendError(out, 400, "Invalid user ID format – expected a UUID");
+            out.println(JsonUtil.error(400, "Invalid user ID format – expected a UUID"));
+            out.flush();
             return;
         }
 
@@ -50,32 +54,29 @@ public class AccountCommandHandler implements com.marketplace.socket.Marketplace
 
             // Pass the parsed UUID object to the database methods
             BigDecimal balance = getBalance(conn, userUuid);
-            JsonArray purchased = getPurchasedItems(conn, userUuid);
-            JsonArray sold = getSoldItems(conn, userUuid);
+            List<Map<String, Object>> purchased = getPurchasedItems(conn, userUuid);
+            List<Map<String, Object>> sold = getSoldItems(conn, userUuid);
 
             conn.commit();
 
-            // 2. Construct response exactly as defined in Backend Agreements.md
-            JsonObject response = new JsonObject();
-            response.addProperty("status", 200);
+            // 2. Construct response using JsonUtil
+            Map<String, Object> data = new HashMap<>();
+            data.put("balance", balance);
+            data.put("purchased_items", purchased);
+            data.put("sold_items", sold);
+            data.put("items_for_sale", new ArrayList<>()); // Empty array to fulfill UI contract
 
-            JsonObject data = new JsonObject();
-            data.addProperty("balance", balance);
-            data.add("purchased_items", purchased);
-            data.add("sold_items", sold);
-            data.add("items_for_sale", new JsonArray()); // Empty array to fulfill UI contract
-
-            response.add("data", data);
-
-            out.println(gson.toJson(response));
+            out.println(JsonUtil.ok(200, "Account retrieved successfully", data));
             out.flush();
 
         } catch (SQLException e) {
             e.printStackTrace();  // Log on server side
-            sendError(out, 500, "Database error while retrieving account: " + e.getMessage());
+            out.println(JsonUtil.error(500, "Database error while retrieving account: " + e.getMessage()));
+            out.flush();
         } catch (Exception e) {
             e.printStackTrace();
-            sendError(out, 500, "Unexpected error: " + e.getMessage());
+            out.println(JsonUtil.error(500, "Unexpected error: " + e.getMessage()));
+            out.flush();
         }
     }
 
@@ -85,7 +86,7 @@ public class AccountCommandHandler implements com.marketplace.socket.Marketplace
     private BigDecimal getBalance(Connection conn, UUID userId) throws SQLException {
         String sql = "SELECT balance FROM accounts WHERE user_id = ?";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setObject(1, userId); // 3. Use setObject for PostgreSQL UUID compatibility
+            stmt.setObject(1, userId);
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
                 return rs.getBigDecimal("balance");
@@ -99,7 +100,7 @@ public class AccountCommandHandler implements com.marketplace.socket.Marketplace
      * Get items the user has purchased. Joins: orders (buyer_id = userId) →
      * order_items → items → users (seller).
      */
-    private JsonArray getPurchasedItems(Connection conn, UUID userId) throws SQLException {
+    private List<Map<String, Object>> getPurchasedItems(Connection conn, UUID userId) throws SQLException {
         String sql = """
             SELECT o.order_id,
                    o.total_amount,
@@ -118,32 +119,32 @@ public class AccountCommandHandler implements com.marketplace.socket.Marketplace
             ORDER BY o.created_at DESC
             """;
 
-        JsonArray arr = new JsonArray();
+        List<Map<String, Object>> list = new ArrayList<>();
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setObject(1, userId); // Use setObject
+            stmt.setObject(1, userId);
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
-                JsonObject obj = new JsonObject();
-                obj.addProperty("order_id", rs.getString("order_id"));
-                obj.addProperty("total_amount", rs.getBigDecimal("total_amount"));
-                obj.addProperty("order_date", rs.getTimestamp("order_date").toString());
-                obj.addProperty("item_id", rs.getString("item_id"));
-                obj.addProperty("item_name", rs.getString("name"));
-                obj.addProperty("brand", rs.getString("brand"));
-                obj.addProperty("price", rs.getBigDecimal("price"));
-                obj.addProperty("seller_id", rs.getString("seller_id"));
-                obj.addProperty("seller_name", rs.getString("seller_name"));
-                arr.add(obj);
+                Map<String, Object> map = new HashMap<>();
+                map.put("order_id", rs.getString("order_id"));
+                map.put("total_amount", rs.getBigDecimal("total_amount"));
+                map.put("order_date", rs.getTimestamp("order_date").toString());
+                map.put("item_id", rs.getString("item_id"));
+                map.put("item_name", rs.getString("name"));
+                map.put("brand", rs.getString("brand"));
+                map.put("price", rs.getBigDecimal("price"));
+                map.put("seller_id", rs.getString("seller_id"));
+                map.put("seller_name", rs.getString("seller_name"));
+                list.add(map);
             }
         }
-        return arr;
+        return list;
     }
 
     /**
      * Get items the user has sold. Joins: orders (via order_items) where the
      * item's seller_id = userId.
      */
-    private JsonArray getSoldItems(Connection conn, UUID userId) throws SQLException {
+    private List<Map<String, Object>> getSoldItems(Connection conn, UUID userId) throws SQLException {
         String sql = """
             SELECT o.order_id,
                    o.total_amount,
@@ -162,35 +163,24 @@ public class AccountCommandHandler implements com.marketplace.socket.Marketplace
             ORDER BY o.created_at DESC
             """;
 
-        JsonArray arr = new JsonArray();
+        List<Map<String, Object>> list = new ArrayList<>();
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setObject(1, userId); // Use setObject
+            stmt.setObject(1, userId);
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
-                JsonObject obj = new JsonObject();
-                obj.addProperty("order_id", rs.getString("order_id"));
-                obj.addProperty("total_amount", rs.getBigDecimal("total_amount"));
-                obj.addProperty("order_date", rs.getTimestamp("order_date").toString());
-                obj.addProperty("item_id", rs.getString("item_id"));
-                obj.addProperty("item_name", rs.getString("name"));
-                obj.addProperty("brand", rs.getString("brand"));
-                obj.addProperty("price", rs.getBigDecimal("price"));
-                obj.addProperty("buyer_id", rs.getString("buyer_id"));
-                obj.addProperty("buyer_name", rs.getString("buyer_name"));
-                arr.add(obj);
+                Map<String, Object> map = new HashMap<>();
+                map.put("order_id", rs.getString("order_id"));
+                map.put("total_amount", rs.getBigDecimal("total_amount"));
+                map.put("order_date", rs.getTimestamp("order_date").toString());
+                map.put("item_id", rs.getString("item_id"));
+                map.put("item_name", rs.getString("name"));
+                map.put("brand", rs.getString("brand"));
+                map.put("price", rs.getBigDecimal("price"));
+                map.put("buyer_id", rs.getString("buyer_id"));
+                map.put("buyer_name", rs.getString("buyer_name"));
+                list.add(map);
             }
         }
-        return arr;
-    }
-
-    /**
-     * Sends an error response formatted according to team agreements.
-     */
-    private void sendError(PrintWriter out, int statusCode, String message) {
-        JsonObject error = new JsonObject();
-        error.addProperty("status", statusCode);
-        error.addProperty("message", message);
-        out.println(gson.toJson(error));
-        out.flush();
+        return list;
     }
 }

@@ -1,7 +1,8 @@
-package com.marketplace.socket.commands;
+package com.marketplace.socket.handlers;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import com.marketplace.socket.JsonUtil;
+import com.marketplace.socket.CommandHandler;
 import com.marketplace.socket.Session;
 import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
@@ -15,12 +16,12 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Map;
 import java.util.UUID;
 
-public class PurchaseCommandHandler implements com.marketplace.socket.MarketplaceServer.CommandHandler {
+public class PurchaseCommandHandler implements CommandHandler {
 
     private final DataSource dataSource;
-    private final Gson gson = new Gson();
 
     public PurchaseCommandHandler(DataSource dataSource) {
         this.dataSource = dataSource;
@@ -38,12 +39,14 @@ public class PurchaseCommandHandler implements com.marketplace.socket.Marketplac
         try {
             buyerId = UUID.fromString(session.getUserId());
         } catch (IllegalArgumentException e) {
-            sendError(out, 400, "Invalid user ID format.");
+            out.println(JsonUtil.error(400, "Invalid user ID format."));
+            out.flush();
             return;
         }
 
         if (!request.has("itemId")) {
-            sendError(out, 400, "Missing 'itemId'");
+            out.println(JsonUtil.error(400, "Missing 'itemId'"));
+            out.flush();
             return;
         }
 
@@ -62,19 +65,25 @@ public class PurchaseCommandHandler implements com.marketplace.socket.Marketplac
                 ResultSet rs = stmt.executeQuery();
                 if (rs.next()) {
                     if (rs.getInt("quantity") <= 0) {
-                        sendError(out, 400, "Item is out of stock.");
+                        out.println(JsonUtil.error(400, "Item is out of stock."));
+                        out.flush();
+                        conn.rollback();
                         return;
                     }
                     price = rs.getBigDecimal("price");
                     sellerId = rs.getObject("seller_id", UUID.class);
                 } else {
-                    sendError(out, 404, "Item not found or not available.");
+                    out.println(JsonUtil.error(404, "Item not found or not available."));
+                    out.flush();
+                    conn.rollback();
                     return;
                 }
             }
 
             if (buyerId.equals(sellerId)) {
-                sendError(out, 400, "You cannot buy your own item.");
+                out.println(JsonUtil.error(400, "You cannot buy your own item."));
+                out.flush();
+                conn.rollback();
                 return;
             }
 
@@ -122,30 +131,21 @@ public class PurchaseCommandHandler implements com.marketplace.socket.Marketplac
 
             conn.commit(); // Commit database changes
 
-            // 6. Return Stripe Client Secret to the frontend
-            JsonObject response = new JsonObject();
-            response.addProperty("status", 200);
-
-            JsonObject data = new JsonObject();
-            data.addProperty("order_id", orderId.toString());
-            data.addProperty("client_secret", paymentIntent.getClientSecret());
-
-            response.add("data", data);
-            out.println(gson.toJson(response));
+            // 6. Return Stripe Client Secret to the frontend using JsonUtil
+            out.println(JsonUtil.ok(200, "Purchase initiated", Map.of(
+                    "order_id", orderId.toString(),
+                    "client_secret", paymentIntent.getClientSecret()
+            )));
+            out.flush();
 
         } catch (SQLException e) {
             e.printStackTrace();
-            sendError(out, 500, "Database error: " + e.getMessage());
+            out.println(JsonUtil.error(500, "Database error: " + e.getMessage()));
+            out.flush();
         } catch (StripeException e) {
             e.printStackTrace();
-            sendError(out, 500, "Stripe API error: " + e.getMessage());
+            out.println(JsonUtil.error(500, "Stripe API error: " + e.getMessage()));
+            out.flush();
         }
-    }
-
-    private void sendError(PrintWriter out, int statusCode, String message) {
-        JsonObject error = new JsonObject();
-        error.addProperty("status", statusCode);
-        error.addProperty("message", message);
-        out.println(gson.toJson(error));
     }
 }

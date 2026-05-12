@@ -1,23 +1,25 @@
-package com.marketplace.socket.commands;
+package com.marketplace.socket.handlers;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.marketplace.socket.JsonUtil;
+import com.marketplace.socket.CommandHandler;
 import com.marketplace.socket.Session;
 
 import javax.sql.DataSource;
 import java.io.PrintWriter;
-import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
-public class ItemsCommandHandler implements com.marketplace.socket.MarketplaceServer.CommandHandler {
+public class ItemsCommandHandler implements CommandHandler {
 
     private final DataSource dataSource;
-    private final Gson gson = new Gson();
 
     public ItemsCommandHandler(DataSource dataSource) {
         this.dataSource = dataSource;
@@ -29,7 +31,8 @@ public class ItemsCommandHandler implements com.marketplace.socket.MarketplaceSe
         try {
             userUuid = UUID.fromString(session.getUserId());
         } catch (IllegalArgumentException e) {
-            sendError(out, 400, "Invalid user ID format.");
+            out.println(JsonUtil.error(400, "Invalid user ID format."));
+            out.flush();
             return;
         }
 
@@ -50,11 +53,13 @@ public class ItemsCommandHandler implements com.marketplace.socket.MarketplaceSe
                     listItems(conn, out);
                     break;
                 default:
-                    sendError(out, 400, "Invalid or missing 'action'. Use ADD, EDIT, REMOVE, or LIST.");
+                    out.println(JsonUtil.error(400, "Invalid or missing 'action'. Use ADD, EDIT, REMOVE, or LIST."));
+                    out.flush();
             }
         } catch (SQLException e) {
             e.printStackTrace();
-            sendError(out, 500, "Database error: " + e.getMessage());
+            out.println(JsonUtil.error(500, "Database error: " + e.getMessage()));
+            out.flush();
         }
     }
 
@@ -69,13 +74,13 @@ public class ItemsCommandHandler implements com.marketplace.socket.MarketplaceSe
             stmt.setInt(6, req.has("quantity") ? req.get("quantity").getAsInt() : 1);
 
             stmt.executeUpdate();
-            sendSuccess(out, "Item added successfully");
+            out.println(JsonUtil.ok(200, "Item added successfully", null));
+            out.flush();
         }
     }
 
     private void editItem(Connection conn, UUID sellerId, JsonObject req, PrintWriter out) throws SQLException {
         UUID itemId = UUID.fromString(req.get("itemId").getAsString());
-        // Verify ownership and update
         String sql = "UPDATE items SET name = ?, brand = ?, description = ?, price = ?, quantity = ? WHERE item_id = ? AND seller_id = ?";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, req.get("name").getAsString());
@@ -88,16 +93,16 @@ public class ItemsCommandHandler implements com.marketplace.socket.MarketplaceSe
 
             int rows = stmt.executeUpdate();
             if (rows > 0) {
-                sendSuccess(out, "Item updated successfully");
+                out.println(JsonUtil.ok(200, "Item updated successfully", null));
             } else {
-                sendError(out, 403, "Item not found or you are not the seller.");
+                out.println(JsonUtil.error(403, "Item not found or you are not the seller."));
             }
+            out.flush();
         }
     }
 
     private void removeItem(Connection conn, UUID sellerId, JsonObject req, PrintWriter out) throws SQLException {
         UUID itemId = UUID.fromString(req.get("itemId").getAsString());
-        // Soft delete by setting status to DISABLED
         String sql = "UPDATE items SET status = 'DISABLED' WHERE item_id = ? AND seller_id = ?";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setObject(1, itemId);
@@ -105,10 +110,11 @@ public class ItemsCommandHandler implements com.marketplace.socket.MarketplaceSe
 
             int rows = stmt.executeUpdate();
             if (rows > 0) {
-                sendSuccess(out, "Item removed successfully");
+                out.println(JsonUtil.ok(200, "Item removed successfully", null));
             } else {
-                sendError(out, 403, "Item not found or you are not the seller.");
+                out.println(JsonUtil.error(403, "Item not found or you are not the seller."));
             }
+            out.flush();
         }
     }
 
@@ -116,36 +122,20 @@ public class ItemsCommandHandler implements com.marketplace.socket.MarketplaceSe
         String sql = "SELECT item_id, name, brand, description, price, quantity, status FROM items WHERE status = 'AVAILABLE'";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             ResultSet rs = stmt.executeQuery();
-            JsonArray itemsArray = new JsonArray();
+            List<Map<String, Object>> itemsList = new ArrayList<>();
             while (rs.next()) {
-                JsonObject item = new JsonObject();
-                item.addProperty("item_id", rs.getString("item_id"));
-                item.addProperty("name", rs.getString("name"));
-                item.addProperty("brand", rs.getString("brand"));
-                item.addProperty("description", rs.getString("description"));
-                item.addProperty("price", rs.getBigDecimal("price"));
-                item.addProperty("quantity", rs.getInt("quantity"));
-                itemsArray.add(item);
+                Map<String, Object> item = new HashMap<>();
+                item.put("item_id", rs.getString("item_id"));
+                item.put("name", rs.getString("name"));
+                item.put("brand", rs.getString("brand"));
+                item.put("description", rs.getString("description"));
+                item.put("price", rs.getBigDecimal("price"));
+                item.put("quantity", rs.getInt("quantity"));
+                itemsList.add(item);
             }
 
-            JsonObject response = new JsonObject();
-            response.addProperty("status", 200);
-            response.add("data", itemsArray);
-            out.println(gson.toJson(response));
+            out.println(JsonUtil.ok(200, "Items retrieved successfully", itemsList));
+            out.flush();
         }
-    }
-
-    private void sendSuccess(PrintWriter out, String message) {
-        JsonObject response = new JsonObject();
-        response.addProperty("status", 200);
-        response.addProperty("message", message);
-        out.println(gson.toJson(response));
-    }
-
-    private void sendError(PrintWriter out, int statusCode, String message) {
-        JsonObject error = new JsonObject();
-        error.addProperty("status", statusCode);
-        error.addProperty("message", message);
-        out.println(gson.toJson(error));
     }
 }

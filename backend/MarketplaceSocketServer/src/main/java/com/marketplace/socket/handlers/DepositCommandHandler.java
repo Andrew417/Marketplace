@@ -1,7 +1,8 @@
-package com.marketplace.socket.commands;
+package com.marketplace.socket.handlers;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import com.marketplace.socket.CommandHandler;
 import com.marketplace.socket.Session;
 
 import javax.sql.DataSource;
@@ -13,7 +14,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.UUID;
 
-public class DepositCommandHandler implements com.marketplace.socket.MarketplaceServer.CommandHandler {
+public class DepositCommandHandler implements CommandHandler {
 
     private final DataSource dataSource;
     private final Gson gson = new Gson();
