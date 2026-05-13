@@ -287,3 +287,6 @@ id_rsa.pub
 
 # Docker dev volumes
 docker-volumes/
+
+# env
+.env
