@@ -10,6 +10,8 @@ import com.marketplace.webservices.models.Deposit;
 import com.marketplace.webservices.repositories.AccountRepository;
 import com.marketplace.webservices.repositories.DepositRepository;
 import com.marketplace.webservices.response.ApiResponse;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -29,6 +31,9 @@ public class AccountService {
     }
 
     // ─── DEPOSIT ──────────────────────────────────────────
+    @PersistenceContext
+    private EntityManager entityManager;
+
     @Transactional
     public ResponseEntity<ApiResponse> deposit(UUID userId, DepositRequest request) {
 
@@ -47,6 +52,9 @@ public class AccountService {
         deposit.setUserId(userId);
         deposit.setAmount(request.getAmount());
         depositRepository.save(deposit);
+        
+        entityManager.flush();
+        entityManager.clear();
 
         // Fetch updated balance
         Account updated = accountRepository.findByUserId(userId).get();
