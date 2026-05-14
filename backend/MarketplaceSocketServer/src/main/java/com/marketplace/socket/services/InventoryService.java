@@ -8,10 +8,14 @@ import java.util.Map;
 
 public class InventoryService {
 
-    private final ItemDao itemDao = new ItemDao();
+    private final ItemDao itemDao;
+
+    public InventoryService(javax.sql.DataSource dataSource) {
+        this.itemDao = new ItemDao(dataSource);
+    }
 
     public Map<String, Object> addItem(String sellerId, String name, String brand,
-                                      String description, BigDecimal price, int quantity) throws SQLException {
+            String description, BigDecimal price, int quantity) throws SQLException {
 
         String itemId = itemDao.insertItem(sellerId, name, brand, description, price, quantity);
         return Map.of("item_id", itemId);

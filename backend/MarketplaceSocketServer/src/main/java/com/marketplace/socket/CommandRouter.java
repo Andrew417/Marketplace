@@ -10,6 +10,8 @@ import com.marketplace.socket.handlers.ItemsCommandHandler;
 import com.marketplace.socket.handlers.PurchaseCommandHandler;
 import com.marketplace.socket.handlers.ReportsHandler;
 import com.marketplace.socket.handlers.SearchHandler;
+import com.marketplace.socket.services.ReportsService;
+import com.marketplace.socket.services.SearchService;
 
 import javax.sql.DataSource;
 import java.io.PrintWriter;
@@ -27,27 +29,27 @@ public class CommandRouter {
     }
 
     public CommandRouter(DataSource dataSource, boolean includePurchaseRoutes) {
-        AuthHandler authHandler = new AuthHandler();
-        SearchHandler searchHandler = new SearchHandler();
-        InventoryHandler inventoryHandler = new InventoryHandler();
-        ReportsHandler reportsHandler = new ReportsHandler();
+        AuthHandler authHandler = new AuthHandler(dataSource);
+        InventoryHandler inventoryHandler = new InventoryHandler(dataSource);
         AccountCommandHandler accountHandler = new AccountCommandHandler(dataSource);
         ItemsCommandHandler itemsHandler = new ItemsCommandHandler(dataSource);
         DepositCommandHandler depositHandler = new DepositCommandHandler(dataSource);
+        SearchHandler searchHandler = new SearchHandler(new SearchService(dataSource));
+        ReportsHandler reportsHandler = new ReportsHandler(new ReportsService(dataSource));
 
-        //Auth routes
+        // Auth routes
         routes.put("REGISTER", authHandler::handleRegister);
         routes.put("LOGIN", authHandler::handleLogin);
 
         // Search by item name and/or brand
         routes.put("SEARCH", searchHandler::handleSearch);
 
-        //Inventory Management
+        // Inventory Management
         routes.put("ADD_ITEM", inventoryHandler::handleAddItem);
         routes.put("UPDATE_STOCK", inventoryHandler::handleUpdateStock);
         routes.put("DISABLE_ITEM", inventoryHandler::handleDisableItem);
 
-        //Reports generation
+        // Reports generation
         routes.put("REPORT_SELLER_TX", reportsHandler::handleSellerReport);
         routes.put("REPORT_BUYER_TX", reportsHandler::handleBuyerReport);
 

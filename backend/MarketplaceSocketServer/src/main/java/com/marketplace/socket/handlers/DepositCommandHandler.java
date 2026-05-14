@@ -48,10 +48,11 @@ public class DepositCommandHandler implements CommandHandler {
             conn.setAutoCommit(false);
 
             // 1. Insert into deposits log table
-            String insertDeposit = "INSERT INTO deposits (user_id, amount) VALUES (?, ?)";
+            String insertDeposit = "INSERT INTO deposits (deposit_id, user_id, amount) VALUES (?, ?, ?)";
             try (PreparedStatement stmt = conn.prepareStatement(insertDeposit)) {
-                stmt.setObject(1, userUuid);
-                stmt.setBigDecimal(2, amount);
+                stmt.setObject(1, UUID.randomUUID());
+                stmt.setObject(2, userUuid);
+                stmt.setBigDecimal(3, amount);
                 stmt.executeUpdate();
             }
 

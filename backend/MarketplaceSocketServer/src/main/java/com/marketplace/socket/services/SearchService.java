@@ -1,6 +1,7 @@
 package com.marketplace.socket.services;
 
 import com.marketplace.socket.db.ItemDao;
+import com.marketplace.socket.db.TransactionDao;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -8,7 +9,11 @@ import java.util.Map;
 
 public class SearchService {
 
-    private final ItemDao itemDao = new ItemDao();
+    private final ItemDao itemDao;
+
+    public SearchService(javax.sql.DataSource dataSource) {
+        this.itemDao = new ItemDao(dataSource);
+    }
 
     public Map<String, Object> search(String name, String brand) throws SQLException {
         String n = (name == null || name.isBlank()) ? "%" : "%" + name.trim() + "%";
@@ -19,7 +24,6 @@ public class SearchService {
         // return consistent shape:
         return Map.of(
                 "count", items.size(),
-                "items", items
-        );
+                "items", items);
     }
 }

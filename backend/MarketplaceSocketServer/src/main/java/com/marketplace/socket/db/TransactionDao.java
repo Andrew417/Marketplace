@@ -5,6 +5,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TransactionDao {
+    private final javax.sql.DataSource dataSource;
+
+    public TransactionDao(javax.sql.DataSource dataSource) {
+        this.dataSource = dataSource;
+    }
 
     public record TransactionRecord(
             String transactionId,
@@ -13,8 +18,8 @@ public class TransactionDao {
             String orderId,
             String type,
             String status,
-            Timestamp createdAt
-    ) {}
+            Timestamp createdAt) {
+    }
 
     public List<TransactionRecord> findBySellerId(String sellerId, int limit) throws SQLException {
         String sql = """
@@ -25,8 +30,8 @@ public class TransactionDao {
                  LIMIT ?
                 """;
 
-        try (Connection c = DatabaseConnection.getConnection();
-             PreparedStatement ps = c.prepareStatement(sql)) {
+        try (Connection c = dataSource.getConnection();
+                PreparedStatement ps = c.prepareStatement(sql)) {
 
             ps.setString(1, sellerId);
             ps.setInt(2, limit);
@@ -41,8 +46,7 @@ public class TransactionDao {
                             rs.getString("order_id"),
                             rs.getString("type"),
                             rs.getString("status"),
-                            rs.getTimestamp("created_at")
-                    ));
+                            rs.getTimestamp("created_at")));
                 }
             }
             return out;
@@ -58,8 +62,8 @@ public class TransactionDao {
                  LIMIT ?
                 """;
 
-        try (Connection c = DatabaseConnection.getConnection();
-             PreparedStatement ps = c.prepareStatement(sql)) {
+        try (Connection c = dataSource.getConnection();
+                PreparedStatement ps = c.prepareStatement(sql)) {
 
             ps.setString(1, buyerId);
             ps.setInt(2, limit);
@@ -74,8 +78,7 @@ public class TransactionDao {
                             rs.getString("order_id"),
                             rs.getString("type"),
                             rs.getString("status"),
-                            rs.getTimestamp("created_at")
-                    ));
+                            rs.getTimestamp("created_at")));
                 }
             }
             return out;

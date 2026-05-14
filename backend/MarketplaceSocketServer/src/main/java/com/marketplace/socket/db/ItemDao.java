@@ -6,6 +6,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ItemDao {
+    private final javax.sql.DataSource dataSource;
+
+    public ItemDao(javax.sql.DataSource dataSource) {
+        this.dataSource = dataSource;
+    }
 
     public record ItemRecord(
             String itemId,
@@ -15,8 +20,7 @@ public class ItemDao {
             String description,
             BigDecimal price,
             String status,
-            int quantity
-            ) {
+            int quantity) {
 
     }
 
@@ -32,7 +36,7 @@ public class ItemDao {
                 LIMIT ?
                 """;
 
-        try (Connection c = DatabaseConnection.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
+        try (Connection c = dataSource.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
 
             ps.setString(1, nameLike);
             ps.setString(2, brandLike);
@@ -49,8 +53,7 @@ public class ItemDao {
                             rs.getString("description"),
                             rs.getBigDecimal("price"),
                             rs.getString("status"),
-                            rs.getInt("quantity")
-                    ));
+                            rs.getInt("quantity")));
                 }
             }
             return out;
@@ -62,26 +65,27 @@ public class ItemDao {
 
         String status = (quantity > 0) ? "AVAILABLE" : "OUT_OF_STOCK";
 
+        // ✅ Generate UUID in Java first
+        String itemId = java.util.UUID.randomUUID().toString();
+
         String sql = """
-            INSERT INTO items (seller_id, name, brand, description, price, status, quantity)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-            RETURNING item_id
-            """;
+                INSERT INTO items (item_id, seller_id, name, brand, description, price, status, quantity)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                """;
 
-        try (Connection c = DatabaseConnection.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
+        try (Connection c = dataSource.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
 
-            ps.setString(1, sellerId);
-            ps.setString(2, name);
-            ps.setString(3, brand);
-            ps.setString(4, description);
-            ps.setBigDecimal(5, price);
-            ps.setString(6, status);
-            ps.setInt(7, quantity);
+            ps.setString(1, itemId); // ✅ Pass UUID explicitly
+            ps.setString(2, sellerId);
+            ps.setString(3, name);
+            ps.setString(4, brand);
+            ps.setString(5, description);
+            ps.setBigDecimal(6, price);
+            ps.setString(7, status);
+            ps.setInt(8, quantity);
 
-            try (ResultSet rs = ps.executeQuery()) {
-                rs.next();
-                return rs.getString(1);
-            }
+            ps.executeUpdate(); // ✅ No RETURNING needed
+            return itemId; // ✅ Return the UUID we generated
         }
     }
 
@@ -89,14 +93,14 @@ public class ItemDao {
         String status = (quantity > 0) ? "AVAILABLE" : "OUT_OF_STOCK";
 
         String sql = """
-            UPDATE items
-               SET quantity = ?,
-                   status = ?
-             WHERE item_id = ?
-               AND seller_id = ?
-            """;
+                UPDATE items
+                   SET quantity = ?,
+                       status = ?
+                 WHERE item_id = ?
+                   AND seller_id = ?
+                """;
 
-        try (Connection c = DatabaseConnection.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
+        try (Connection c = dataSource.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
 
             ps.setInt(1, quantity);
             ps.setString(2, status);
@@ -109,13 +113,13 @@ public class ItemDao {
 
     public int disableItem(String sellerId, String itemId) throws SQLException {
         String sql = """
-            UPDATE items
-               SET status = 'DISABLED'
-             WHERE item_id = ?
-               AND seller_id = ?
-            """;
+                UPDATE items
+                   SET status = 'DISABLED'
+                 WHERE item_id = ?
+                   AND seller_id = ?
+                """;
 
-        try (Connection c = DatabaseConnection.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
+        try (Connection c = dataSource.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
 
             ps.setString(1, itemId);
             ps.setString(2, sellerId);

@@ -9,7 +9,11 @@ import java.util.Map;
 
 public class AuthService {
 
-    private final UserDao userDao = new UserDao();
+    private final UserDao userDao;
+
+    public AuthService(javax.sql.DataSource dataSource) {
+        this.userDao = new UserDao(dataSource);
+    }
 
     public void register(String username, String email, String password) throws SQLException {
         if (userDao.findByEmail(email).isPresent()) {
@@ -20,9 +24,8 @@ public class AuthService {
         }
 
         String hash = PasswordUtil.hash(password);
-
-        // insertUser now returns String userId (UUID) — you can ignore it for register
-        userDao.insertUser(username, email, hash);
+        String userId = userDao.insertUser(username, email, hash);
+        userDao.insertAccount(userId);
     }
 
     public Map<String, Object> login(String email, String password) throws SQLException {

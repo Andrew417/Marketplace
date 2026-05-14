@@ -9,13 +9,19 @@ import java.sql.SQLException;
 
 public class ReportsHandler {
 
-    private final ReportsService reportsService = new ReportsService();
+    private final ReportsService reportsService;
+
+    public ReportsHandler(ReportsService reportsService) {
+        this.reportsService = reportsService;
+    }
 
     public String handleSellerReport(String jsonPayload) {
         try {
             SellerReportRequest req = JsonUtil.gson().fromJson(jsonPayload, SellerReportRequest.class);
-            if (req == null) return JsonUtil.error(400, "Invalid JSON");
-            if (req.seller_id == null || req.seller_id.isBlank()) return JsonUtil.error(400, "seller_id is required");
+            if (req == null)
+                return JsonUtil.error(400, "Invalid JSON");
+            if (req.seller_id == null || req.seller_id.isBlank())
+                return JsonUtil.error(400, "seller_id is required");
 
             var data = reportsService.sellerTransactions(req.seller_id.trim());
             return JsonUtil.ok(200, "Seller transactions report", data);
@@ -32,8 +38,10 @@ public class ReportsHandler {
     public String handleBuyerReport(String jsonPayload) {
         try {
             BuyerReportRequest req = JsonUtil.gson().fromJson(jsonPayload, BuyerReportRequest.class);
-            if (req == null) return JsonUtil.error(400, "Invalid JSON");
-            if (req.buyer_id == null || req.buyer_id.isBlank()) return JsonUtil.error(400, "buyer_id is required");
+            if (req == null)
+                return JsonUtil.error(400, "Invalid JSON");
+            if (req.buyer_id == null || req.buyer_id.isBlank())
+                return JsonUtil.error(400, "buyer_id is required");
 
             var data = reportsService.buyerTransactions(req.buyer_id.trim());
             return JsonUtil.ok(200, "Buyer transactions report", data);

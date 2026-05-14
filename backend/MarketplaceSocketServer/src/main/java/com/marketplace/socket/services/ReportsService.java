@@ -8,7 +8,11 @@ import java.util.Map;
 
 public class ReportsService {
 
-    private final TransactionDao transactionDao = new TransactionDao();
+    private final TransactionDao transactionDao;
+
+    public ReportsService(javax.sql.DataSource dataSource) {
+        this.transactionDao = new TransactionDao(dataSource);
+    }
 
     public Map<String, Object> sellerTransactions(String sellerId) throws SQLException {
         List<TransactionDao.TransactionRecord> tx = transactionDao.findBySellerId(sellerId, 100);

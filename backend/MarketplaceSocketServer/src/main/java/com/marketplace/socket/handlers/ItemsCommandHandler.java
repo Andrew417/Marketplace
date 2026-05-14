@@ -64,15 +64,15 @@ public class ItemsCommandHandler implements CommandHandler {
     }
 
     private void addItem(Connection conn, UUID sellerId, JsonObject req, PrintWriter out) throws SQLException {
-        String sql = "INSERT INTO items (seller_id, name, brand, description, price, quantity) VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO items (item_id, seller_id, name, brand, description, price, quantity) VALUES (?, ?, ?, ?, ?, ?, ?)";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setObject(1, sellerId);
-            stmt.setString(2, req.get("name").getAsString());
-            stmt.setString(3, req.has("brand") ? req.get("brand").getAsString() : null);
-            stmt.setString(4, req.has("description") ? req.get("description").getAsString() : null);
-            stmt.setBigDecimal(5, req.get("price").getAsBigDecimal());
-            stmt.setInt(6, req.has("quantity") ? req.get("quantity").getAsInt() : 1);
-
+            stmt.setObject(1, UUID.randomUUID());
+            stmt.setObject(2, sellerId);
+            stmt.setString(3, req.get("name").getAsString());
+            stmt.setString(4, req.has("brand") ? req.get("brand").getAsString() : null);
+            stmt.setString(5, req.has("description") ? req.get("description").getAsString() : null);
+            stmt.setBigDecimal(6, req.get("price").getAsBigDecimal());
+            stmt.setInt(7, req.has("quantity") ? req.get("quantity").getAsInt() : 1);
             stmt.executeUpdate();
             out.println(JsonUtil.ok(200, "Item added successfully", null));
             out.flush();

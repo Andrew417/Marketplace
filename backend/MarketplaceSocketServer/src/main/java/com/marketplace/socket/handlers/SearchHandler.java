@@ -2,13 +2,18 @@ package com.marketplace.socket.handlers;
 
 import com.marketplace.socket.JsonUtil;
 import com.marketplace.socket.dto.SearchRequest;
+import com.marketplace.socket.services.AuthService;
 import com.marketplace.socket.services.SearchService;
 
 import java.sql.SQLException;
 
 public class SearchHandler {
 
-    private final SearchService searchService = new SearchService();
+    private final SearchService searchService;
+
+    public SearchHandler(SearchService searchService) {
+        this.searchService = searchService;
+    }
 
     public String handleSearch(String jsonPayload) {
         try {

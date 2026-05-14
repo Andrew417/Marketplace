@@ -14,7 +14,7 @@ public class JwtUtil {
     private static final long EXP_SECONDS = 24L * 60L * 60L; // 24 hours
 
     private static SecretKey key() {
-        String secret = System.getProperty("JWT_SECRET", System.getenv("JWT_SECRET"));
+        String secret = com.marketplace.socket.Main.getEnv("JWT_SECRET");
         if (secret == null || secret.isBlank()) {
             throw new IllegalStateException("JWT_SECRET env var is missing");
         }
@@ -29,8 +29,7 @@ public class JwtUtil {
         return Jwts.builder()
                 .claims(Map.of(
                         "user_id", userId,
-                        "email", email
-                ))
+                        "email", email))
                 .issuedAt(Date.from(now))
                 .expiration(Date.from(exp))
                 .signWith(key())

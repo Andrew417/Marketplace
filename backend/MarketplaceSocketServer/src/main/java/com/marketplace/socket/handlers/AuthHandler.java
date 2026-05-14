@@ -8,7 +8,11 @@ import java.sql.SQLException;
 
 public class AuthHandler {
 
-    private final AuthService authService = new AuthService();
+    private final AuthService authService;
+
+    public AuthHandler(javax.sql.DataSource dataSource) {
+        this.authService = new AuthService(dataSource);
+    }
 
     public String handleRegister(String jsonPayload) {
         try {
