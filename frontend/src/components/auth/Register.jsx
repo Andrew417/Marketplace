@@ -1,7 +1,6 @@
-// src/components/auth/Register.jsx
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import socketService from '../../services/socketService';
+import apiService from '../../services/apiService';
 
 const Register = () => {
   const [username, setUsername] = useState('');
@@ -50,19 +49,10 @@ const Register = () => {
     setIsLoading(true);
 
     try {
-      const response = await socketService.send('REGISTER', {
-        username,
-        email,
-        password
-      });
-
-      if (response.status === 'OK') {
-        setShowSuccess(true);
-      } else {
-        setError(response.message || 'Registration failed');
-      }
-    } catch {
-      setError('Connection error. Please try again.');
+      await apiService.post('/api/auth/register', { username, email, password });
+      setShowSuccess(true);
+    } catch (err) {
+      setError(err.message);
     } finally {
       setIsLoading(false);
     }
@@ -74,13 +64,10 @@ const Register = () => {
         <div style={styles.card}>
           <div style={styles.successIcon}>✓</div>
           <h2 style={styles.title}>Account Created!</h2>
-          <p style={styles.successMessage}>
-            Please check your email to verify your account.
-          </p>
+          <p style={styles.successMessage}>Your account has been created successfully.</p>
           <button onClick={() => navigate('/login')} style={styles.submitBtn}>
             Go to Login
           </button>
-          <button style={styles.secondaryBtn}>Resend Email</button>
         </div>
       </div>
     );
@@ -164,10 +151,7 @@ const Register = () => {
           <button
             type="submit"
             disabled={isLoading}
-            style={{
-              ...styles.submitBtn,
-              opacity: isLoading ? 0.7 : 1
-            }}
+            style={{ ...styles.submitBtn, opacity: isLoading ? 0.7 : 1 }}
           >
             {isLoading ? 'Creating Account...' : 'Create Account'}
           </button>
@@ -307,18 +291,6 @@ const styles = {
     fontSize: '14px',
     textAlign: 'center',
     marginBottom: '24px',
-  },
-  secondaryBtn: {
-    width: '100%',
-    padding: '12px',
-    backgroundColor: '#f3f4f6',
-    color: '#374151',
-    border: '1px solid #d1d5db',
-    borderRadius: '8px',
-    fontSize: '14px',
-    fontWeight: '500',
-    cursor: 'pointer',
-    marginTop: '8px',
   },
 };
 
