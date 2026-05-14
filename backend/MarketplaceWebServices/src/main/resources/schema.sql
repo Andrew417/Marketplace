@@ -1,8 +1,5 @@
 -- Clean up existing tables
 DROP TABLE IF EXISTS transactions;
-DROP TABLE IF EXISTS order_items;
-DROP TABLE IF EXISTS orders;
-DROP TABLE IF EXISTS items;
 DROP TABLE IF EXISTS deposits;
 DROP TABLE IF EXISTS accounts;
 DROP TABLE IF EXISTS users;
@@ -37,38 +34,6 @@ CREATE TABLE deposits (
     FOREIGN KEY (user_id) REFERENCES users(user_id)
 );
 
--- ITEMS
-CREATE TABLE items (
-    item_id UUID PRIMARY KEY,
-    seller_id UUID NOT NULL,
-    name VARCHAR(100) NOT NULL,
-    brand VARCHAR(100),
-    description TEXT,
-    price DECIMAL(10,2) NOT NULL CHECK (price > 0),
-    quantity INT NOT NULL DEFAULT 0,
-    status VARCHAR(20) DEFAULT 'AVAILABLE',
-    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (seller_id) REFERENCES users(user_id)
-);
-
--- ORDERS
-CREATE TABLE orders (
-    order_id UUID PRIMARY KEY,
-    buyer_id UUID NOT NULL,
-    total_amount DECIMAL(10,2) NOT NULL CHECK (total_amount > 0),
-    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (buyer_id) REFERENCES users(user_id)
-);
-
--- ORDER ITEMS
-CREATE TABLE order_items (
-    order_item_id UUID PRIMARY KEY,
-    order_id UUID NOT NULL,
-    item_id UUID NOT NULL,
-    FOREIGN KEY (order_id) REFERENCES orders(order_id),
-    FOREIGN KEY (item_id) REFERENCES items(item_id)
-);
-
 -- TRANSACTIONS
 CREATE TABLE transactions (
     transaction_id UUID PRIMARY KEY,
@@ -78,8 +43,5 @@ CREATE TABLE transactions (
     type VARCHAR(20),
     status VARCHAR(20),
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (buyer_id) REFERENCES users(user_id),
-    FOREIGN KEY (seller_id) REFERENCES users(user_id),
-    FOREIGN KEY (order_id) REFERENCES orders(order_id)
+    FOREIGN KEY (buyer_id) REFERENCES users(user_id)
 );
-

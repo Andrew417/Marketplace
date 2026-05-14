@@ -10,8 +10,8 @@ package com.marketplace.bridge;
  */
 public class Main {
     public static void main(String[] args) {
-        System.out.println("Marketplace Bridge Server started.");
-        System.out.println("TODO: Start WebSocket server on port 8081.");
+        MessageForwarder forwarder = new MessageForwarder();
+        MarketplaceWebSocketServer server = new MarketplaceWebSocketServer(8081, forwarder);
+        server.start();
     }
-
 }
